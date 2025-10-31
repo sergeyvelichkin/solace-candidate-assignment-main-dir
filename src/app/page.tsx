@@ -1,91 +1,86 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import type { ChangeEvent } from "react";
+import { useMemo, useState } from "react";
+import { useDebounce, useGetAdvocates } from "./hooks";
+import type { Advocate } from "@/types";
+import { InfiniteScroll, Input, Skeleton, Table, type TableColumn } from "./components";
 
 export default function Home() {
-  const [advocates, setAdvocates] = useState([]);
-  const [filteredAdvocates, setFilteredAdvocates] = useState([]);
-
-  useEffect(() => {
-    console.log("fetching advocates...");
-    fetch("/api/advocates").then((response) => {
-      response.json().then((jsonResponse) => {
-        setAdvocates(jsonResponse.data);
-        setFilteredAdvocates(jsonResponse.data);
-      });
-    });
-  }, []);
-
-  const onChange = (e) => {
-    const searchTerm = e.target.value;
-
-    document.getElementById("search-term").innerHTML = searchTerm;
-
-    console.log("filtering advocates...");
-    const filteredAdvocates = advocates.filter((advocate) => {
-      return (
-        advocate.firstName.includes(searchTerm) ||
-        advocate.lastName.includes(searchTerm) ||
-        advocate.city.includes(searchTerm) ||
-        advocate.degree.includes(searchTerm) ||
-        advocate.specialties.includes(searchTerm) ||
-        advocate.yearsOfExperience.includes(searchTerm)
-      );
+    const [searchTerm, setSearchTerm] = useState("");
+    const debouncedSearchTerm = useDebounce(searchTerm, 300);
+    const { advocates, loading, error, hasMore, loadMore, total } = useGetAdvocates({
+        searchTerm: debouncedSearchTerm,
     });
 
-    setFilteredAdvocates(filteredAdvocates);
-  };
+    const columns = useMemo<TableColumn<Advocate>[]>(() => {
+        return [
+            { key: "firstName", header: "First Name" },
+            { key: "lastName", header: "Last Name" },
+            { key: "city", header: "City" },
+            { key: "degree", header: "Degree" },
+            {
+                key: "specialties",
+                header: "Specialties",
+                render: (row) => (
+                    <div className="flex flex-wrap gap-1">
+                        {row.specialties.map((specialty) => (
+                            <span key={specialty} className="bg-gray-200 rounded px-2 py-1 text-sm">
+                                {specialty}
+                            </span>
+                        ))}
+                    </div>
+                ),
+            },
+            { key: "yearsOfExperience", header: "Years of Experience" },
+            { key: "phoneNumber", header: "Phone Number" },
+        ];
+    }, []);
 
-  const onClick = () => {
-    console.log(advocates);
-    setFilteredAdvocates(advocates);
-  };
+    const onSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(e.target.value);
+    };
 
-  return (
-    <main style={{ margin: "24px" }}>
-      <h1>Solace Advocates</h1>
-      <br />
-      <br />
-      <div>
-        <p>Search</p>
-        <p>
-          Searching for: <span id="search-term"></span>
-        </p>
-        <input style={{ border: "1px solid black" }} onChange={onChange} />
-        <button onClick={onClick}>Reset Search</button>
-      </div>
-      <br />
-      <br />
-      <table>
-        <thead>
-          <th>First Name</th>
-          <th>Last Name</th>
-          <th>City</th>
-          <th>Degree</th>
-          <th>Specialties</th>
-          <th>Years of Experience</th>
-          <th>Phone Number</th>
-        </thead>
-        <tbody>
-          {filteredAdvocates.map((advocate) => {
-            return (
-              <tr>
-                <td>{advocate.firstName}</td>
-                <td>{advocate.lastName}</td>
-                <td>{advocate.city}</td>
-                <td>{advocate.degree}</td>
-                <td>
-                  {advocate.specialties.map((s) => (
-                    <div>{s}</div>
-                  ))}
-                </td>
-                <td>{advocate.yearsOfExperience}</td>
-                <td>{advocate.phoneNumber}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </main>
-  );
+    const onResetSearch = () => {
+        setSearchTerm("");
+    };
+
+    const isInitialLoading = loading && advocates.length === 0;
+
+    return (
+        <main className="p-4 space-y-4 w-full">
+            <div className="space-y-2">
+                <h1 className="text-2xl font-semibold text-center">Solace Advocates</h1>
+                <div className="space-y-2">
+                    <Input
+                        label="Search"
+                        onChange={onSearchChange}
+                        value={searchTerm}
+                        placeholder="Search advocates..."
+                        type="search"
+                    />
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-600">Total results: {total}</span>
+                    </div>
+                </div>
+            </div>
+
+            {error && <div className="text-red-500">Error: {error.message}</div>}
+
+            {isInitialLoading ? (
+                <Skeleton />
+            ) : (
+                <Table
+                    columns={columns}
+                    data={advocates}
+                    getRowKey={(row) => row.id}
+                    emptyState={<div className="text-gray-500">No advocates found.</div>}
+                />
+            )}
+
+            {loading && advocates.length > 0 && <Skeleton />}
+
+            {hasMore && <InfiniteScroll onLoadMore={loadMore} disabled={loading} />}
+        </main>
+    );
 }
