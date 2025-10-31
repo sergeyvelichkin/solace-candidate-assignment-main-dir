@@ -30,12 +30,16 @@ const parseQuery = (request: Request): QueryConfig => {
 export async function GET(request: Request) {
     const { searchTerm, limit, cursor } = parseQuery(request);
 
+    const searchPattern = searchTerm ? `%${searchTerm}%` : undefined;
+
     const searchFilter = searchTerm
         ? or(
               ilike(advocates.firstName, `%${searchTerm}%`),
               ilike(advocates.lastName, `%${searchTerm}%`),
               ilike(advocates.city, `%${searchTerm}%`),
-              ilike(advocates.degree, `%${searchTerm}%`)
+              ilike(advocates.degree, `%${searchTerm}%`),
+              sql`CAST(${advocates.phoneNumber} AS TEXT) ILIKE ${searchPattern}`,
+              sql`CAST(${advocates.yearsOfExperience} AS TEXT) ILIKE ${searchPattern}`
           )
         : undefined;
 
