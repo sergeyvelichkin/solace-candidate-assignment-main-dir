@@ -2,31 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useGetAdvocates } from "./hooks/useGetAdvocates";
-
+import { Skeleton } from "./components/Skeleton/Skeleton";
 export default function Home() {
     const [searchTerm, setSearchTerm] = useState("");
-    const { advocates, loading, error } = useGetAdvocates();
+    const { advocates, loading, error } = useGetAdvocates({ searchTerm });
 
-
-    //   const onChange = (e) => {
-    //     const searchTerm = e.target.value;
-
-    //     document.getElementById("search-term").innerHTML = searchTerm;
-
-    //     console.log("filtering advocates...");
-    //     const filteredAdvocates = advocates.filter((advocate) => {
-    //       return (
-    //         advocate.firstName.includes(searchTerm) ||
-    //         advocate.lastName.includes(searchTerm) ||
-    //         advocate.city.includes(searchTerm) ||
-    //         advocate.degree.includes(searchTerm) ||
-    //         advocate.specialties.includes(searchTerm) ||
-    //         advocate.yearsOfExperience.includes(searchTerm)
-    //       );
-    //     });
-
-    //     setFilteredAdvocates(filteredAdvocates);
-    //   };
 
     const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const searchTerm = e.target.value;
@@ -52,7 +32,8 @@ export default function Home() {
             </div>
             <br />
             <br />
-            <table>
+            {loading && <Skeleton />}
+            {!loading && advocates !== null && <table>
                 <thead>
                     <th>First Name</th>
                     <th>Last Name</th>
@@ -63,7 +44,7 @@ export default function Home() {
                     <th>Phone Number</th>
                 </thead>
                 <tbody>
-                    {advocates?.map((advocate) => {
+                    {advocates.map((advocate) => {
                         return (
                             <tr key={advocate.id}>
                                 <td>{advocate.firstName}</td>
@@ -81,7 +62,7 @@ export default function Home() {
                         );
                     })}
                 </tbody>
-            </table>
+            </table>}
         </main>
     );
 }

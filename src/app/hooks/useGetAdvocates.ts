@@ -12,7 +12,7 @@ export const useGetAdvocates = (options: UseGetAdvocatesOptions = {}) => {
     const [total, setTotal] = useState<number>(0);
     const [nextCursor, setNextCursor] = useState<number | null>(null);
     const [hasMore, setHasMore] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<Error | null>(null);
 
     const fetchPage = useCallback(
