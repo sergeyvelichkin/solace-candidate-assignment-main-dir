@@ -52,7 +52,7 @@ export default function Home() {
 
     return (
         <main className="p-4 space-y-4 w-full">
-            <header className="space-y-2">
+            <div className="space-y-2">
                 <h1 className="text-2xl font-semibold">Solace Advocates</h1>
                 <div className="space-y-2">
                     <label className="flex flex-col gap-2">
@@ -64,11 +64,6 @@ export default function Home() {
                             placeholder="Search advocates..."
                         />
                     </label>
-                    {searchTerm && (
-                        <div>
-                            Searching for: <span className="font-semibold">{searchTerm}</span>
-                        </div>
-                    )}
                     <div className="flex items-center gap-2">
                         <button
                             onClick={onResetSearch}
@@ -79,7 +74,7 @@ export default function Home() {
                         <span className="text-sm text-gray-600">Total results: {total}</span>
                     </div>
                 </div>
-            </header>
+            </div>
 
             {error && <div className="text-red-500">Error: {error.message}</div>}
 
