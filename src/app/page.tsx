@@ -4,16 +4,13 @@ import type { ChangeEvent } from "react";
 import { useMemo, useState } from "react";
 import { useDebounce, useGetAdvocates } from "./hooks";
 import type { Advocate } from "@/types";
-import { InfiniteScroll, Skeleton, Table, type TableColumn } from "./components";
-
-const PAGE_SIZE = 10;
+import { InfiniteScroll, Input, Skeleton, Table, type TableColumn } from "./components";
 
 export default function Home() {
     const [searchTerm, setSearchTerm] = useState("");
     const debouncedSearchTerm = useDebounce(searchTerm, 300);
     const { advocates, loading, error, hasMore, loadMore, total } = useGetAdvocates({
         searchTerm: debouncedSearchTerm,
-        limit: PAGE_SIZE,
     });
 
     const columns = useMemo<TableColumn<Advocate>[]>(() => {
@@ -53,24 +50,16 @@ export default function Home() {
     return (
         <main className="p-4 space-y-4 w-full">
             <div className="space-y-2">
-                <h1 className="text-2xl font-semibold">Solace Advocates</h1>
+                <h1 className="text-2xl font-semibold text-center">Solace Advocates</h1>
                 <div className="space-y-2">
-                    <label className="flex flex-col gap-2">
-                        <span className="font-medium">Search</span>
-                        <input
-                            className="border-2 border-black px-3 py-2 rounded"
-                            onChange={onSearchChange}
-                            value={searchTerm}
-                            placeholder="Search advocates..."
-                        />
-                    </label>
+                    <Input
+                        label="Search"
+                        onChange={onSearchChange}
+                        value={searchTerm}
+                        placeholder="Search advocates..."
+                        type="search"
+                    />
                     <div className="flex items-center gap-2">
-                        <button
-                            onClick={onResetSearch}
-                            className="rounded bg-gray-800 px-4 py-2 text-white hover:bg-gray-700 transition"
-                        >
-                            Reset Search
-                        </button>
                         <span className="text-sm text-gray-600">Total results: {total}</span>
                     </div>
                 </div>

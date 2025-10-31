@@ -7,14 +7,14 @@ type InfiniteScrollProps = {
 };
 
 export const InfiniteScroll = ({ onLoadMore, disabled = false, rootMargin = "200px" }: InfiniteScrollProps) => {
-    const sentinelRef = useRef<HTMLDivElement | null>(null);
+    const ref = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         if (disabled) {
             return;
         }
 
-        const node = sentinelRef.current;
+        const node = ref.current;
         if (!node) {
             return;
         }
@@ -35,5 +35,5 @@ export const InfiniteScroll = ({ onLoadMore, disabled = false, rootMargin = "200
         return () => observer.disconnect();
     }, [disabled, onLoadMore, rootMargin]);
 
-    return <div ref={sentinelRef} aria-hidden="true" />;
+    return <div ref={ref} aria-hidden="true" />;
 };

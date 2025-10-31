@@ -1,13 +1,14 @@
 import { Advocate, GetAdvocatesResponse } from "@/types";
 import { useCallback, useEffect, useState } from "react";
 
+const DEFAULT_LIMIT = 10;
+
 type UseGetAdvocatesOptions = {
     searchTerm?: string;
-    limit?: number;
 };
 
 export const useGetAdvocates = (options: UseGetAdvocatesOptions = {}) => {
-    const { searchTerm, limit } = options;
+    const { searchTerm } = options;
     const [advocates, setAdvocates] = useState<Advocate[]>([]);
     const [total, setTotal] = useState<number>(0);
     const [nextCursor, setNextCursor] = useState<number | null>(null);
@@ -27,9 +28,7 @@ export const useGetAdvocates = (options: UseGetAdvocatesOptions = {}) => {
                     params.set("searchTerm", searchTerm);
                 }
 
-                if (typeof limit === "number") {
-                    params.set("limit", String(limit));
-                }
+                params.set("limit", String(DEFAULT_LIMIT));
 
                 if (typeof cursor === "number") {
                     params.set("cursor", String(cursor));
@@ -54,7 +53,7 @@ export const useGetAdvocates = (options: UseGetAdvocatesOptions = {}) => {
                 setLoading(false);
             }
         },
-        [searchTerm, limit]
+        [searchTerm]
     );
 
     useEffect(() => {
