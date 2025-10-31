@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useGetAdvocates } from "./hooks/useGetAdvocates";
+import type { ChangeEvent } from "react";
+import { useState } from "react";
+import { useDebounce, useGetAdvocates } from "./hooks";
 import { Skeleton } from "./components/Skeleton/Skeleton";
+
 export default function Home() {
     const [searchTerm, setSearchTerm] = useState("");
-    const { advocates, loading, error } = useGetAdvocates({ searchTerm });
+    const debouncedSearchTerm = useDebounce(searchTerm, 300);
+    const { advocates, loading, error } = useGetAdvocates({ searchTerm: debouncedSearchTerm });
 
-
-    const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const onSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
         const searchTerm = e.target.value;
         setSearchTerm(searchTerm);
-    }
+    };
 
     const onClick = () => {
         setSearchTerm("");
@@ -25,9 +27,14 @@ export default function Home() {
             <div>
                 <p>Search</p>
                 <p>
-                    Searching for: <span id="search-term"></span>
+                    Searching for: <span id="search-term">{searchTerm}</span>
                 </p>
-                <input className="border-2 border-black" onChange={onSearchChange} />
+                <input
+                    className="border-2 border-black"
+                    onChange={onSearchChange}
+                    value={searchTerm}
+                    placeholder="Search advocates..."
+                />
                 <button onClick={onClick}>Reset Search</button>
             </div>
             <br />
